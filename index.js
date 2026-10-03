@@ -1,137 +1,211 @@
-const allQuestions={
+
+const allQuestions = {
 
     question1: {
         text: "What is the capital of France?",
         options: ["Berlin", "Madrid", "Paris", "Rome"],
         correctAnswer: 2
     },
-    question2: {    
-    text: "What is the chemical symbol for water?",
+
+    question2: {
+        text: "What is the chemical symbol for water?",
         options: ["H2O", "O2", "CO2", "NaCl"],
         correctAnswer: 0
     },
+
     question3: {
         text: "Which planet is known as the Red Planet?",
-        options: ["Earth", "Mars", "Jupiter", "Venus"], 
+        options: ["Earth", "Mars", "Jupiter", "Venus"],
         correctAnswer: 1
     },
+
     question4: {
         text: "What is the largest ocean on Earth?",
         options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
         correctAnswer: 3
-    } 
+    }
 
-}
-let start=document.querySelector(".start");
-let que=document.querySelector(".question");
-let ans=document.querySelector(".answer");
-
-let buttons = document.querySelectorAll(".ans");
-
-let current=1;
-let score=0;
-let marq=0;
+};
 
 
-function create(){
-  
-let ansOptions="";
-let count=0;
+const startButton = document.querySelector(".start");
 
-    let outerDiv=document.createElement("div");
-outerDiv.classList.add("outer");
-document.body.append(outerDiv);
+let currentQuestion = 1;
+let score = 0;
 
-let question=allQuestions["question"+current];
 
-for(let i=0;i<question.options.length;i++){
-ansOptions+=`<button class="ans">${question.options[i]}</button>`;
+// Creates answer buttons
+function createAnswerButtons(question) {
+
+    let answerOptions = "";
+
+    for (let i = 0; i < question.options.length; i++) {
+        answerOptions += `
+            <button class="ans">${question.options[i]}</button>
+        `;
+    }
+
+    return answerOptions;
 }
 
 
+// Updates score on the screen
+function updateScore(quizContainer) {
 
-outerDiv.innerHTML=`
-<h3>${question.text}</h3>
-<div class= info>
-<p>Question${current}out of ${Object.keys(allQuestions).length}</p>
-<p class="mark">Score:${score}</p>
-</div>
-<hr>
-${ansOptions}
+    quizContainer.querySelector(".mark").innerText = `Score:${score}`;
+
+}
 
 
-<div class="subButton">
-<button class="next nextQuestion ">Next</button>
-</div>
+// Resets the color of all answer buttons
+function resetAnswerColors(answerButtons) {
 
-`;  
-
-
-let btn=outerDiv.querySelectorAll(".ans");
-btn.forEach(function(button){
-
-button.addEventListener("click",function(){
-      
-    btn.forEach(function(buton){
-buton.style.backgroundColor="";
+    answerButtons.forEach(function (button) {
+        button.style.backgroundColor = "";
     });
 
-  if(button.innerText==  allQuestions["question"+current].options[
-        allQuestions["question"+current].correctAnswer
-    ]){
-        count++;
-        if(count==1){
-     score++;
-    outerDiv.querySelector(".mark").innerText=`Score:${score}`;
+}
+
+
+// Checks the selected answer
+function checkAnswer(button, question, answerButtons, quizContainer, count) {
+
+    resetAnswerColors(answerButtons);
+
+    if (
+        button.innerText ==
+        question.options[question.correctAnswer]
+    ) {
+
+        count.value++;
+
+        if (count.value == 1) {
+            score++;
+            updateScore(quizContainer);
         }
-      this.style.backgroundColor="green";
-  }
-  else{
-     if(score>=current){
 
-        score--;
-        count--;
-        
-     }
-     outerDiv.querySelector(".mark").innerText=`Score:${score}`;
-     this.style.backgroundColor="red";
-  }
-  
-});
+        button.style.backgroundColor = "green";
 
-});
+    }
 
+    else {
 
+        if (score >= currentQuestion) {
+            score--;
+            count.value--;
+        }
 
-let nextQuestion=outerDiv.querySelector(".nextQuestion");
-nextQuestion.addEventListener("click",function(){
-     current++;
-   if(current<=Object.keys(allQuestions).length){
-    outerDiv.style.display="none";
-create();
-   }
-   else{
-    
-    outerDiv.innerHTML = `
-        <div class="End">
-            <p>You got ${score} marks</p>
-            <h1>The End</h1>
-        </div>
-    `;
-   }
-   
+        updateScore(quizContainer);
 
-});
-
+        button.style.backgroundColor = "red";
+    }
 
 }
-start.addEventListener("click", function () {
-    start.style.display="none";
+
+
+// Creates the quiz question
+function create() {
+
+    let answerCount = {
+        value: 0
+    };
+
+    const quizContainer = document.createElement("div");
+    quizContainer.classList.add("outer");
+
+    document.body.append(quizContainer);
+
+    const currentQuestionData =
+        allQuestions["question" + currentQuestion];
+
+    const answerOptions =
+        createAnswerButtons(currentQuestionData);
+
+
+    quizContainer.innerHTML = `
+        <h3>${currentQuestionData.text}</h3>
+
+        <div class="info">
+            <p>
+                Question ${currentQuestion} out of
+                ${Object.keys(allQuestions).length}
+            </p>
+
+            <p class="mark">Score:${score}</p>
+        </div>
+
+        <hr>
+
+        ${answerOptions}
+
+        <div class="subButton">
+            <button class="next nextQuestion">Next</button>
+        </div>
+    `;
+
+
+    const answerButtons =
+        quizContainer.querySelectorAll(".ans");
+
+
+    answerButtons.forEach(function (button) {
+
+        button.addEventListener("click", function () {
+
+            checkAnswer(
+                button,
+                currentQuestionData,
+                answerButtons,
+                quizContainer,
+                answerCount
+            );
+
+        });
+
+    });
+
+
+    const nextButton =
+        quizContainer.querySelector(".nextQuestion");
+
+
+    nextButton.addEventListener("click", function () {
+
+        currentQuestion++;
+
+        if (
+            currentQuestion <=
+            Object.keys(allQuestions).length
+        ) {
+
+            quizContainer.style.display = "none";
+
+            create();
+
+        }
+
+        else {
+
+            quizContainer.innerHTML = `
+                <div class="End">
+                    <p>You got ${score} marks</p>
+                    <h1>The End</h1>
+                </div>
+            `;
+
+        }
+
+    });
+
+}
+
+
+// Starts the quiz
+startButton.addEventListener("click", function () {
+
+    startButton.style.display = "none";
+
     create();
-    
+
 });
-
-
-
-
 
