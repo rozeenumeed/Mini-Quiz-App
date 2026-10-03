@@ -30,11 +30,13 @@ let buttons = document.querySelectorAll(".ans");
 
 let current=1;
 let score=0;
+let marq=0;
 
 
 function create(){
   
-    let ansOptions="";
+let ansOptions="";
+let count=0;
 
     let outerDiv=document.createElement("div");
 outerDiv.classList.add("outer");
@@ -64,22 +66,46 @@ ${ansOptions}
 
 `;  
 
+
 let btn=outerDiv.querySelectorAll(".ans");
 btn.forEach(function(button){
+
 button.addEventListener("click",function(){
+      
+    btn.forEach(function(buton){
+buton.style.backgroundColor="";
+    });
+
   if(button.innerText==  allQuestions["question"+current].options[
         allQuestions["question"+current].correctAnswer
     ]){
-    score++;
+        count++;
+        if(count==1){
+     score++;
     outerDiv.querySelector(".mark").innerText=`Score:${score}`;
+        }
+      this.style.backgroundColor="green";
   }
+  else{
+     if(score>=current){
+
+        score--;
+        count--;
+        
+     }
+     outerDiv.querySelector(".mark").innerText=`Score:${score}`;
+     this.style.backgroundColor="red";
+  }
+  
 });
+
 });
+
 
 
 let nextQuestion=outerDiv.querySelector(".nextQuestion");
 nextQuestion.addEventListener("click",function(){
-   current++;
+     current++;
    if(current<=Object.keys(allQuestions).length){
     outerDiv.style.display="none";
 create();
@@ -88,7 +114,7 @@ create();
     
     outerDiv.innerHTML = `
         <div class="End">
-            <p>You got  marks</p>
+            <p>You got ${score} marks</p>
             <h1>The End</h1>
         </div>
     `;
